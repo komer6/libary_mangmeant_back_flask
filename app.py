@@ -268,13 +268,26 @@ def delete_user(user_id):
     user = User.query.get(user_id)
     
     if user:
+        # Delete all loans associated with this user
+        loans = Loan.query.filter_by(user_id=user_id).all()
+        
+        # Delete each loan
+        for loan in loans:
+            db.session.delete(loan)
+        
+        # Commit the changes to remove the loans
+        db.session.commit()
+
+        # Now, delete the user
         db.session.delete(user)
         db.session.commit()
-        app.logger.info(f'User {user_id} deleted successfully')
-        return jsonify({'message': 'User deleted successfully'}), 200
+        
+        app.logger.info(f'User {user_id} and all associated loans deleted successfully')
+        return jsonify({'message': 'User and all associated loans deleted successfully'}), 200
     else:
         app.logger.warning(f'User {user_id} not found')
         return jsonify({'error': 'User not found'}), 404
+
 
 # API: Delete a book by ID
 @app.route('/api/books/<int:book_id>', methods=['DELETE'])
@@ -284,10 +297,22 @@ def delete_book(book_id):
     book = Book.query.get(book_id)
     
     if book:
+        # Delete all loans associated with this book
+        loans = Loan.query.filter_by(book_id=book_id).all()
+        
+        # Delete each loan
+        for loan in loans:
+            db.session.delete(loan)
+        
+        # Commit the changes to remove the loans
+        db.session.commit()
+
+        # Now, delete the book
         db.session.delete(book)
         db.session.commit()
-        app.logger.info(f'Book {book_id} deleted successfully')
-        return jsonify({'message': 'Book deleted successfully'}), 200
+        
+        app.logger.info(f'Book {book_id} and all associated loans deleted successfully')
+        return jsonify({'message': 'Book and all associated loans deleted successfully'}), 200
     else:
         app.logger.warning(f'Book {book_id} not found')
         return jsonify({'error': 'Book not found'}), 404
